@@ -1,67 +1,129 @@
 import javax.swing.*;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class TaschenrechnerGUI {
     private JFrame frame;
-    private JButton minus, geteilt, mal, plus;
-    private JTextField zahl1, zahl2, zahl3, zahl4, ausgabeFeld;
-    private JLabel ergebnisLabel;
+    private JTextField zaehler1Field, nenner1Field, zaehler2Field, nenner2Field, resultField;
+    private JButton addButton, subtractButton, multiplyButton, divideButton, simplifyButton;
+    private Rechner rechner;
 
     public TaschenrechnerGUI() {
-        frame = new JFrame("Taschenrechner GUI");
-        frame.setSize(1000, 800);
+        rechner = new Rechner();
+
+        frame = new JFrame("Bruch Rechner");
+        frame.setSize(400, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridBagLayout());
+        frame.setLayout(new GridLayout(7, 2));
 
-        minus = new JButton("-");
-        geteilt = new JButton("/");
-        mal = new JButton("*");
-        plus = new JButton("+");
+        zaehler1Field = new JTextField();
+        nenner1Field = new JTextField();
+        zaehler2Field = new JTextField();
+        nenner2Field = new JTextField();
+        resultField = new JTextField();
+        resultField.setEditable(false);
 
-        zahl1 = new JTextField(5);
-        zahl2 = new JTextField(5);
-        zahl3 = new JTextField(5);
-        zahl4 = new JTextField(5);
-        ausgabeFeld = new JTextField(10);
-        ausgabeFeld.setEditable(false); // Das Ausgabefeld sollte nicht bearbeitbar sein
+        addButton = new JButton("+");
+        subtractButton = new JButton("-");
+        multiplyButton = new JButton("*");
+        divideButton = new JButton("/");
+        simplifyButton = new JButton("Kuerzen");
 
-        ergebnisLabel = new JLabel();
+        frame.add(new JLabel("Bruch 1:"));
+        frame.add(zaehler1Field);
+        frame.add(new JLabel(""));
+        frame.add(nenner1Field);
 
-        GridBagConstraints gbc = new GridBagConstraints();
+        // Add an empty JPanel to create a space
+        frame.add(new JPanel());
+        frame.add(new JPanel());
 
-        // Adding components based on the XML constraints
-        gbc.gridx = 0; gbc.gridy = 1;
-        frame.add(zahl1, gbc);
+        frame.add(new JLabel("Bruch 2:"));
+        frame.add(zaehler2Field);
 
-        gbc.gridx = 2; gbc.gridy = 1;
-        frame.add(zahl3, gbc);
+        frame.add(new JLabel(""));
+        frame.add(nenner2Field);
+        frame.add(new JLabel("Ergebnis:"));
+        frame.add(resultField);
 
-        gbc.gridx = 0; gbc.gridy = 2;
-        frame.add(zahl2, gbc);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(1, 4));
+        buttonPanel.add(addButton);
+        buttonPanel.add(subtractButton);
+        buttonPanel.add(multiplyButton);
+        buttonPanel.add(divideButton);
+        frame.add(buttonPanel);
+        frame.add(simplifyButton);
 
-        gbc.gridx = 2; gbc.gridy = 2;
-        frame.add(zahl4, gbc);
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performOperation("add");
+            }
+        });
 
-        gbc.gridx = 3; gbc.gridy = 0;
-        frame.add(plus, gbc);
+        subtractButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performOperation("subtract");
+            }
+        });
 
-        gbc.gridx = 3; gbc.gridy = 1;
-        frame.add(minus, gbc);
+        multiplyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performOperation("multiply");
+            }
+        });
 
-        gbc.gridx = 3; gbc.gridy = 3;
-        frame.add(geteilt, gbc);
+        divideButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performOperation("divide");
+            }
+        });
 
-        gbc.gridx = 3; gbc.gridy = 4;
-        frame.add(mal, gbc);
-
-        gbc.gridx = 5; gbc.gridy = 1; gbc.gridheight = 3;
-        frame.add(ausgabeFeld, gbc);
+        simplifyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performOperation("simplify");
+            }
+        });
 
         frame.setVisible(true);
     }
 
+    private void performOperation(String operation) {
+        int zaehler1 = Integer.parseInt(zaehler1Field.getText());
+        int nenner1 = Integer.parseInt(nenner1Field.getText());
+        Bruch bruch1 = new Bruch(zaehler1, nenner1);
+
+        if (!operation.equals("simplify")) {
+            int zaehler2 = Integer.parseInt(zaehler2Field.getText());
+            int nenner2 = Integer.parseInt(nenner2Field.getText());
+            Bruch bruch2 = new Bruch(zaehler2, nenner2);
+
+            switch (operation) {
+                case "add":
+                    resultField.setText(rechner.addieren(bruch1, bruch2).toString());
+                    break;
+                case "subtract":
+                    resultField.setText(rechner.subtrahieren(bruch1, bruch2).toString());
+                    break;
+                case "multiply":
+                    resultField.setText(rechner.multiplizieren(bruch1, bruch2).toString());
+                    break;
+                case "divide":
+                    resultField.setText(rechner.dividieren(bruch1, bruch2).toString());
+                    break;
+            }
+        } else {
+            resultField.setText(rechner.kuerzen(bruch1).toString());
+        }
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TaschenrechnerGUI());
+        new TaschenrechnerGUI();
     }
 }
